@@ -1,0 +1,71 @@
+<?php
+
+/**
+ * Implements hook_menu().
+ */
+function test_custom_menu() {
+  $items['view/complaints-information'] = array(
+    'title' => 'Custom complaints information Table',
+    'page callback' => 'view_test_custom_data',
+    'access arguments' => array('display Custom complaints information Table'),
+    'type' => MENU_NORMAL_ITEM,
+  );
+  return $items;
+}
+
+/**
+ * Implements hook_permission().
+ */
+function test_custom_permission() {
+  return array(
+    'display Custom complaints information Table' => array(
+      'title' => 'display Custom complaints information Table',
+    ),
+  );
+}
+
+/**
+ * Pager and sorting for this table.
+ */
+function view_test_custom_data()
+{
+  // Set Title.
+  drupal_set_title(t('Custom complaints information Table'));
+
+  $output = '';
+  $header = array(
+    array('data' => t('Name'), 'field' => 'name'),
+    array('data' => t('Email'), 'field' => 'email'),
+    array('data' => t('phone'), 'field' => 'phone'),
+    array('data' => t('Complaint type'), 'field' => 'complaint_type'),
+    array('data' => t('File attachment'), 'field' => 'file_attachment'),
+    array('data' => t('Work flow'), 'field' => 'work_flow'),
+  );
+
+  error_log(print_r($header, TRUE));
+  $nids = db_query("SELECT nid FROM {node} WHERE type = :type", array(':type' => 'complaints'))->fetchCol();
+  $rows = array();
+  foreach ($nids as $nid ) {
+    $data = node_load($nid);
+    $rows[] = array(
+      $data->title,
+      $data->field_email['und'][0]['value'],
+      $data->field_phone['und'][0]['value'],
+      $data->field_complaint_type_['und'][0]['value'],
+      $data->field_file_attachment['und'][0]['filename'],
+      $data->field_workflow['und'][0]['value'],
+    );
+  };
+  $output .= theme('table',
+      array(
+        'header' => $header,
+        'rows' => $rows,
+        'attributes' => array(),
+        'sticky' => TRUE,
+        'caption' => '',
+        'colgroups' => array(),
+        'empty' => t("No Records Found."),
+      )
+    ) . theme('pager');
+  return $output;
+}
