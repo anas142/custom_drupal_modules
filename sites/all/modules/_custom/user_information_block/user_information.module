@@ -1,0 +1,37 @@
+<?php
+/**
+ * Implements hook_block_info().
+ */
+function user_information_block_info()
+{
+
+  $blocks['user_information_block'] = array(
+    'info' => t('User information Block'),
+    'description' => t('This is custom block'),
+    'cache' => DRUPAL_NO_CACHE // this will exclude the block from Drupal cache
+  );
+
+  return $blocks;
+}
+
+/**
+ * This hook generates the contents of the blocks.
+ */
+function user_information_block_view($delta = '')
+{
+  global $user;
+  $account = user_load($user->uid);
+  $items = field_get_items('user', $account, 'field_job');
+  if (isset($user->name)){
+    $result = 'name :'.$user->name. ' email :'.$user->mail.' job:'.  $items[0]['value'];
+  }else{
+    $result = '';
+  }
+  $block = array();
+  switch ($delta) {
+    case 'user_information_block':
+      $block['subject'] = 'User information Block';
+      $block['content'] =  $result;
+  }
+  return $block;
+}

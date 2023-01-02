@@ -1,0 +1,4 @@
+name = User Information block
+description = This module output user information
+core = 7.x
+version = 7.x
